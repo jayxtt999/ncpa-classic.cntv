@@ -44,7 +44,7 @@ class Tools
         if ($pid) {
             file_put_contents('success', "\n" . $url, FILE_APPEND);
             $m3u8_url = 'http://hls.cntv.baishancdnx.cn/asp/hls/2000/0303000a/3/default/' . $pid . '/2000.m3u8';
-            $cmd      = 'start cmd.exe @cmd /k N_m3u8DL-CLI_v2.4.6.exe  "' . $m3u8_url . '" --saveName "' . $title . '" --enableDelAfterDone';
+            $cmd      = 'start cmd.exe @cmd /k N_m3u8DL-CLI_v2.4.6.exe  "' . $m3u8_url . '" --saveName "' . $title . '"  --enableDelAfterDone';
             system($cmd);
         }
     }
@@ -91,7 +91,8 @@ foreach ($list as $item) {
             }else{
 
                 foreach ($Feature as $item){
-                    $tools->downPid($item['Pid'],$item['ShareURL'],$item['Title']);
+                    $title = mb_convert_encoding($item['Title'], 'GBK');
+                    $tools->downPid($item['Pid'],$item['ShareURL'],$title);
                 }
 
             }
