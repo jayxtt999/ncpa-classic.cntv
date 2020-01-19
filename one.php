@@ -42,7 +42,6 @@ class Tools
     public function downPid($pid, $url, $title)
     {
         if ($pid) {
-            file_put_contents('success', "\n" . $url, FILE_APPEND);
             $m3u8_url = 'http://hls.cntv.baishancdnx.cn/asp/hls/2000/0303000a/3/default/' . $pid . '/2000.m3u8';
             $cmd      = 'start cmd.exe @cmd /k N_m3u8DL-CLI_v2.4.6.exe  "' . $m3u8_url . '" --saveName "' . $title . '"  --enableDelAfterDone';
             system($cmd);
@@ -52,42 +51,27 @@ class Tools
 }
 
 $tools = new Tools();
-if (file_exists('list.json')) {
-    $response = file_get_contents('list.json');
-} else {
-    $url      = 'http://api.cntv.cn/apicommon/index?path=iphoneInterface/general/getCrossSearchAction.jsonp&page=1&pageSize=100&column=NCPA%2525E9%25259F%2525B3%2525E4%2525B9%252590%2525E5%25258E%252585&theme=&type=&year=&callback=';
-    $response = $tools->sendRequest($url);
-    $response = substr($response, 1);
-    $response = substr($response, 0, -1);
-    file_put_contents('list.json', $response);
+
+
+$video_album_url = 'http://ncpa-classic.cntv.cn/2019/04/19/VIDE7RzafUdJzHp02EVnjgrZ190419.shtml';
+if (!$video_album_url) {
+    echo 'set video_album_url...';
 }
+$xml_url  = str_replace('.shtml', '.xml', $video_album_url);
+$xml_file = file_get_contents($xml_url);
+$xml_url  = str_replace('.shtml', '.xml', $video_album_url);
+$xml_file = file_get_contents($xml_url);
+if ($xml_file && (false === strpos($xml_file, 'error.html'))) {
+    $xml_data          = json_decode(json_encode(simplexml_load_string($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+    $video_album_title = $xml_data['header'];
+	$video_album_title = mb_convert_encoding($video_album_title, 'GBK');
+    $centerId          = isset($xml_data['centerId']) ? $xml_data['centerId'] : false;
+    if ($centerId) {
+        $tools->downPid($centerId, $video_album_url, $video_album_title);
+    } else {
+        $Feature = isset($xml_data['Features']['Feature']) ? $xml_data['Features']['Feature'] : false;
+        if ($Feature) {
 
-$data = json_decode($response, true);
-$list = $data['list'];
-
-
-$success = file_get_contents('success');
-$success = explode("\n", $success);
-
-foreach ($list as $item) {
-
-    $video_album_url = $item['video_album_url'];
-    if (in_array($video_album_url, $success)) {
-        continue;
-    }
-    $video_album_title = $item['video_album_title'];
-    $video_album_title = mb_convert_encoding($video_album_title, 'GBK');
-    $xml_url           = str_replace('.shtml', '.xml', $video_album_url);
-    $xml_file          = file_get_contents($xml_url);
-    if ($xml_file && (false === strpos($xml_file, 'error.html'))) {
-        $xml_data = json_decode(json_encode(simplexml_load_string($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-
-        $centerId = isset($xml_data['centerId']) ? $xml_data['centerId'] : false;
-        if ($centerId) {
-            $tools->downPid($centerId, $video_album_url, $video_album_title);
-        } else {
-
-            $Feature = $xml_data['Features']['Feature'];
             if (isset($Feature[0]['Pid'])) {
                 $time = $Feature[0]['Time'];
                 $time = explode(':', $time);
@@ -107,16 +91,10 @@ foreach ($list as $item) {
             }
 
         }
-
-
-    } else {
-        file_put_contents('success', "\n" . $video_album_url, FILE_APPEND);
     }
-    //带宽磁盘消耗巨大 暂时只跑一个
-    exit;
 
-}
 
+} 
 
 
 
