@@ -52,14 +52,7 @@ class Tools
 
 $tools = new Tools();
 
-
-$video_album_url = 'http://ncpa-classic.cntv.cn/2019/04/19/VIDE7RzafUdJzHp02EVnjgrZ190419.shtml';
-if (!$video_album_url) {
-    echo 'set video_album_url...';
-}
-$xml_url  = str_replace('.shtml', '.xml', $video_album_url);
-$xml_file = file_get_contents($xml_url);
-$xml_url  = str_replace('.shtml', '.xml', $video_album_url);
+$xml_url  = 'http://ncpa-classic.cntv.cn/2013/05/16/VIDE1368701107311224.xml';
 $xml_file = file_get_contents($xml_url);
 if ($xml_file && (false === strpos($xml_file, 'error.html'))) {
     $xml_data          = json_decode(json_encode(simplexml_load_string($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
