@@ -42,7 +42,9 @@ class Tools
     public function downPid($pid, $url, $title)
     {
         if ($pid) {
-            $m3u8_url = 'http://hls.cntv.baishancdnx.cn/asp/hls/2000/0303000a/3/default/' . $pid . '/2000.m3u8';
+            $m3u8_url = 'http://hls.cntv.baishancdnx.cn/asp/hls/2000/0303000a/3/default/' . $pid . '/2000.m3u8';//超清
+			//$m3u8_url = 'http://hls.cntv.baishancdnx.cn/asp/hls/main/0303000a/3/default/' . $pid . '/main.m3u8?maxbr=2048';//高清
+			
             $cmd      = 'start cmd.exe @cmd /k N_m3u8DL-CLI_v2.4.6.exe  "' . $m3u8_url . '" --saveName "' . $title . '"  --enableDelAfterDone';
             system($cmd);
         }
@@ -50,9 +52,11 @@ class Tools
 
 }
 
+
+
 $tools = new Tools();
 
-$xml_url  = 'http://ncpa-classic.cntv.cn/2013/05/16/VIDE1368701107311224.xml';
+$xml_url  = 'http://ncpa-classic.cntv.cn/2018/02/13/VIDExUHh2Sd3FWYhr9kmVd0L180213.xml';
 $xml_file = file_get_contents($xml_url);
 if ($xml_file && (false === strpos($xml_file, 'error.html'))) {
     $xml_data          = json_decode(json_encode(simplexml_load_string($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
